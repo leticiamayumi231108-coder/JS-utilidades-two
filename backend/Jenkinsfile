@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh './mvnw clean package -B -DskipTests'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh './mvnw test -B'
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                sh './mvnw sonar:sonar -B'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build e testes executados com sucesso!'
+        }
+        failure {
+            echo 'Falha na pipeline!'
+        }
+    }
+}

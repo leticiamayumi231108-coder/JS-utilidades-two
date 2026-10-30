@@ -1,0 +1,67 @@
+================================================================================
+GUIA TÉCNICO: PADRÃO DTO E MÓDULO CLIENTE
+================================================================================
+
+Este documento explica os conceitos aplicados na refatoração do módulo de Clientes
+utilizando o padrão DTO (Data Transfer Objects).
+
+--------------------------------------------------------------------------------
+1. CONCEITOS BÁSICOS
+--------------------------------------------------------------------------------
+
+DTO (Data Transfer Object): É um objeto simples usado para transportar dados de 
+um lugar para outro (entre a API e o Usuário). Ele não tem lógica de negócio.
+
+REQUEST (ClienteRequest): É o "Contrato de Entrada". 
+- Define o que o usuário PODE enviar para a API.
+- Contém validações (Bean Validation) para garantir que os dados cheguem corretos.
+- Esconde campos automáticos como IDs ou datas de criação.
+
+RESPONSE (ClienteResponse): É o "Contrato de Saída".
+- Define o que a API VAI mostrar para o usuário.
+- Serve para esconder dados sensíveis (senhas, campos internos).
+- Evita o erro de "Infinite Recursion" (Recursão Infinita) em relacionamentos.
+
+VANTAGENS:
+- Segurança: O usuário não altera campos que não deve.
+- Desacoplamento: Você pode mudar o banco de dados sem quebrar quem usa sua API.
+- Performance: Você envia apenas os dados necessários, economizando internet.
+
+--------------------------------------------------------------------------------
+2. ANÁLISE DO CÓDIGO (CLIENTE)
+--------------------------------------------------------------------------------
+
+ENTIDADE: Cliente.java
+- @Entity: Avisa ao Hibernate que esta classe é uma tabela no banco.
+- @Id / @GeneratedValue: Define a chave primária e como ela é gerada (Sequence).
+- @Column: Mapeia o nome da coluna física no banco de dados.
+- @OneToMany(mappedBy = "cliente"): Define que um cliente tem muitas vendas.
+- @JsonIgnore: (Importante!) Impede que o Jackson entre em loop infinito ao ler vendas.
+
+SERVICE: ClienteService.java
+- @Service: Registra a classe como um componente de negócio do Spring.
+- @Autowired: Injeta a dependência do Repository para acessar o banco.
+- toEntity(): Método privado que transforma o Request (DTO) em Entidade (Banco).
+- toResponse(): Método privado que transforma a Entidade (Banco) em Response (DTO).
+- findEntityById(): Centraliza a busca e o erro "404 - Not Found" em um só lugar.
+- .stream().map(...): Forma moderna de converter listas inteiras de uma vez só.
+
+CONTROLLER: ClienteController.java
+- @RestController: Define que esta classe responde a requisições HTTP (JSON).
+- @RequestMapping("/clientes"): Define o endereço base da API.
+- @PostMapping / @GetMapping / @PutMapping / @DeleteMapping: Verbos HTTP.
+- @Valid: Ativa as validações que você colocou no ClienteRequest.
+- @RequestBody: Transforma o JSON que vem da internet em um objeto Java.
+- ResponseEntity: Permite que você escolha o código de status (201, 200, 204).
+
+--------------------------------------------------------------------------------
+3. POR QUE MUDAMOS TUDO ISSO?
+--------------------------------------------------------------------------------
+Antes, a sua API era "exposta". Se você mudasse o nome de um campo no banco, a 
+API mudava sozinha e quebrava quem estava usando. Agora, a sua API tem uma 
+"blindagem". O Request e o Response são a casca, e a Entidade é o núcleo.
+Você pode mexer no núcleo à vontade, desde que mantenha a casca igual!
+
+================================================================================
+Documento gerado para fins educacionais - Projeto Papelaria
+================================================================================

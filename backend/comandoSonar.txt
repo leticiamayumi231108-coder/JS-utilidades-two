@@ -1,0 +1,4 @@
+mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=papelaria -Dsonar.projectName='papelaria' -Dsonar.host.url=http://localhost:9000 -Dsonar.token=sqp_5259a89d9fd6bcf3b936b9ecd0bcdc2eff28cd70
+
+
+senha sonar: Programacao2026@

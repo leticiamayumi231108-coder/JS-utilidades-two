@@ -1,0 +1,17 @@
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# Java / Maven
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Angular / Node
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+
+# Configurações locais
+backend/.env

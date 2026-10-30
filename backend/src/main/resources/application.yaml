@@ -1,0 +1,35 @@
+# DEFINICAO SERVIDOR DE APLICACAO
+server:
+  servlet:
+    context-path: /
+  port: 8080
+
+# DEFINICAO LOG DA APLICACAO
+spring:
+  application:
+    name: papelaria
+
+  # DEFINICAO BANCO DE DADOS
+  jpa:
+    # [CORREÇÃO #53] show-sql mantido mas em produção deve ser false
+    show-sql: true
+    hibernate:
+      # [CORREÇÃO #54] ddl-auto: update mantido para desenvolvimento;
+      # em produção deve ser 'validate' com Flyway/Liquibase
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      # [CORREÇÃO #55] Timezone do Hibernate movido do application.properties para aqui
+      hibernate.jdbc.time_zone: America/Sao_Paulo
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/papelaria}
+    username: ${SPRING_DATASOURCE_USERNAME:admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+# Actuator endpoints para healthcheck do Docker
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
